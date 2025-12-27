@@ -101,18 +101,29 @@ SET age = timestampdiff(YEAR, birthdate, CURDATE());
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Data Analysis
--- 1. What is the gender breakdown of employees in the company?
+-- 1. What is the gender and race breakdown of employees in the company?
+# gender
 SELECT gender, count(*) AS count
 FROM HR2
 WHERE termdate IS NULL # which represent the current emplyoyees in this company
 GROUP BY gender;
 
--- 2. What is the race breakdown of employees in the company?
+#race
 SELECT race, count(*) AS count
 FROM HR2
 WHERE termdate IS NULL
 GROUP BY race
 ORDER BY count(*) DESC;
+
+-- 2. What percentage of employees work remotely in each department?
+SELECT department, total, workremote, ROUND((workremote/total) *100,2) AS workremote_percentage
+FROM (
+	select department, count(*) AS total,
+    SUM(CASE WHEN location = 'Remote' THEN 1 ELSE 0 END) AS workremote
+    from HR2
+    where termdate IS NULL
+    group by department) AS subquery
+ORDER BY workremote_percentage DESC;
 
 -- 3. What is the age distribution of employees in the company?
 SELECT
@@ -206,7 +217,8 @@ WHERE termdate IS NOT NULL AND termdate <= CURDATE()
 GROUP BY department
 ORDER BY department;
 
-
-
-    
-    
+-- 12. Which department has least employess? 
+SELECT department, count(*) AS count
+FROM HR2
+GROUP BY department
+ORDER BY count DESC;
